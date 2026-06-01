@@ -1,0 +1,11 @@
+[install]
+# 使用国内镜像加速（可选）
+registry = "https://registry.npmmirror.com"
+
+[run]
+# 允许 bun run 执行 TypeScript
+# silent = false
+
+[test]
+# 测试超时时间（毫秒）
+timeout = 30000

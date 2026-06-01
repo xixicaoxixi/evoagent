@@ -1,0 +1,102 @@
+# gitleaks.toml — EvoAgent 自定义密钥扫描配置（安全强化版）
+#
+# 用法：gitleaks detect --source . --verbose
+
+title = "EvoAgent Secret Scanning"
+
+[[rules]]
+  id = "evoagent-anthropic-key"
+  description = "Anthropic API Key"
+  regex = '''sk-ant-api03-[a-zA-Z0-9\-_]{95}'''
+  tags = ["key", "anthropic"]
+
+[[rules]]
+  id = "evoagent-openai-key"
+  description = "OpenAI API Key"
+  # 覆盖旧格式 sk-... 和新格式 sk-proj-...
+  regex = '''sk-(?:proj-)?[a-zA-Z0-9]{48}'''
+  tags = ["key", "openai"]
+
+[[rules]]
+  id = "evoagent-deepseek-key"
+  description = "DeepSeek API Key"
+  regex = '''sk-[a-zA-Z0-9]{32,64}'''
+  tags = ["key", "deepseek"]
+  keywords = ["deepseek", "api_key"]
+
+[[rules]]
+  id = "evoagent-kimi-key"
+  description = "Kimi/Moonshot API Key"
+  regex = '''sk-[a-zA-Z0-9]{32,64}'''
+  tags = ["key", "kimi"]
+  keywords = ["kimi", "moonshot", "api_key"]
+
+[[rules]]
+  id = "evoagent-glm-key"
+  description = "GLM/ZhipuAI API Key"
+  # 精确匹配智谱 API Key 格式：32位十六进制.6位字符
+  regex = '''[a-f0-9]{32}\.[a-zA-Z0-9]{6}'''
+  tags = ["key", "glm"]
+  keywords = ["glm", "zhipu", "bigmodel", "api_key", "apikey"]
+
+[[rules]]
+  id = "evoagent-aws-access-key"
+  description = "AWS Access Key ID"
+  regex = '''AKIA[0-9A-Z]{16}'''
+  tags = ["key", "aws"]
+
+[[rules]]
+  id = "evoagent-aws-secret-key"
+  description = "AWS Secret Access Key"
+  regex = '''(?i)aws(.{0,20})?(?-i)['\"][0-9a-zA-Z/+]{40}['\"]'''
+  tags = ["key", "aws"]
+
+[[rules]]
+  id = "evoagent-github-pat"
+  description = "GitHub Personal Access Token"
+  regex = '''ghp_[a-zA-Z0-9]{36}'''
+  tags = ["key", "github"]
+
+[[rules]]
+  id = "evoagent-slack-token"
+  description = "Slack Token"
+  regex = '''xox[bpas]-[a-zA-Z0-9\-]{30,}'''
+  tags = ["key", "slack"]
+
+[[rules]]
+  id = "evoagent-jwt"
+  description = "JSON Web Token"
+  regex = '''eyJ[a-zA-Z0-9_-]*\.eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*'''
+  tags = ["key", "jwt"]
+
+[allowlist]
+  description = "Allowlisted paths - 注意：.env 已被移除，防止真实密钥泄露被忽略"
+
+  paths = [
+    # 仅豁免示例/模板文件（这些文件包含假密钥占位符，会触发误报）
+    # 生产环境密钥绝不会存储在这些文件中
+    '''\.env\.example$''',
+    '''\.env\.example\.local$''',
+    '''\.env\.template$''',
+    '''\.env\.sample$''',
+
+    # 工具和文档目录
+    '''\.semgrep/''',
+    '''\.github/''',
+    '''tests/''',
+    '''reference/''',
+    '''docs/''',
+    '''\.md$''',
+    '''\.lock$''',
+    '''bun\.lock$''',
+  ]
+
+  # 可在此添加特定的假阳性匹配（如测试用的假密钥）
+  # [[allowlist.regexes]]
+  #   regex = '''sk-test-1234567890abcdef'''
+
+  [[allowlist.commits]]
+    message = '''initial commit'''
+
+  [[allowlist.commits]]
+    message = '''security: add'''

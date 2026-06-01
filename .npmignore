@@ -1,0 +1,36 @@
+# Source
+src/
+tests/
+reference/
+docs/
+
+# Documentation
+*.md
+!README.md
+
+# Config
+tsconfig.json
+bunfig.toml
+bun.lock
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts (only dist/ should be published)
+node_modules/
+
+# Source maps
+*.map
+*.d.ts.map
+
+# Environment
+.env
+.env.*

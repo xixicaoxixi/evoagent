@@ -1,0 +1,76 @@
+# evoagent-security.yaml — EvoAgent 自定义 Semgrep 安全规则
+#
+# E.1 修复：4 条自定义规则覆盖密钥硬编码、外部引用、eval 禁用、敏感日志。
+# 用法：npx semgrep --config .semgrep/rules/evoagent-security.yaml src/
+
+rules:
+  - id: evoagent-no-hardcoded-keys
+    metadata:
+      category: security
+      confidence: HIGH
+      severity: ERROR
+    message: "硬编码 API Key 检测：不允许在源码中硬编码 API 密钥"
+    patterns:
+      - pattern-either:
+          - pattern: "apiKey = $\"sk-...\""
+          - pattern: "apiKey: $\"sk-...\""
+          - pattern: "API_KEY = $\"sk-...\""
+          - pattern: "api_key = $\"sk-...\""
+          - pattern: "secret = $\"sk-ant-...\""
+          - pattern: "token = $\"ghp_...\""
+          - pattern: "token = $\"xoxb-...\""
+          - pattern: "token = $\"xoxp-...\""
+          - pattern: "key = $\"AKIA...\""
+    severity: ERROR
+    languages: [typescript, javascript]
+
+  - id: evoagent-no-external-reference
+    metadata:
+      category: security
+      confidence: MEDIUM
+      severity: WARNING
+    message: "外部项目引用检测：源码中不应包含 claude-code、openclaw、HackerOne 等外部项目引用"
+    pattern-regex: "claude-code|openclaw|HackerOne"
+    severity: WARNING
+    languages: [typescript, javascript]
+    paths:
+      exclude:
+        - "tests/"
+        - "docs/"
+        - "reference/"
+
+  - id: evoagent-no-eval
+    metadata:
+      category: security
+      confidence: HIGH
+      severity: ERROR
+    message: "禁止 eval/Function：不允许使用 eval() 或 new Function()，存在代码注入风险"
+    patterns:
+      - pattern-either:
+          - pattern: "eval(...)"
+          - pattern: "new Function(...)"
+    severity: ERROR
+    languages: [typescript, javascript]
+    paths:
+      exclude:
+        - "src/evolution/code-sandbox.ts"
+
+  - id: evoagent-no-sensitive-logging
+    metadata:
+      category: security
+      confidence: MEDIUM
+      severity: WARNING
+    message: "敏感信息日志检测：不应在日志中输出密钥、密码、令牌等敏感信息"
+    pattern-either:
+      - pattern: "console.log($...password)"
+      - pattern: "console.log($...secret)"
+      - pattern: "console.log($...token)"
+      - pattern: "console.log($...apiKey)"
+      - pattern: "console.log($...api_key)"
+      - pattern: "console.log($...privateKey)"
+      - pattern: "console.log($...credential)"
+    severity: WARNING
+    languages: [typescript, javascript]
+    paths:
+      exclude:
+        - "tests/"
